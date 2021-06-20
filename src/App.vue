@@ -3,7 +3,7 @@
     <div
       v-if="this.pageLoading === 'loading'"
       :class="{
-      '[opacity-0,invisible]' : this.pageLoading === 'done'
+        '[opacity-0,invisible]': this.pageLoading === 'done',
       }"
       class="
         fixed
@@ -17,7 +17,8 @@
         items-center
         justify-center
         visible
-      ">
+      "
+    >
       <svg
         class="animate-spin -ml-1 mr-3 h-12 w-12 text-white"
         xmlns="http://www.w3.org/2000/svg"
@@ -139,10 +140,28 @@
         </button>
       </section>
       <template v-if="tickers.length">
+        <div>
+          <p class="text-sm font-medium text-gray-700">
+             Фильтр:
+          <input
+          v-model="filter"
+          class="
+                  block
+                  pr-10
+                  border-gray-300
+                  text-gray-900
+                  focus:outline-none focus:ring-gray-500 focus:border-gray-500
+                  sm:text-sm
+                  rounded-md
+                " 
+          placeholder="Например B..."
+          />
+          </p>
+        </div>
         <hr class="w-full border-t border-gray-600 my-4" />
         <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
           <div
-            v-for="t in tickers"
+            v-for="t in filteredTickers()"
             :key="t.name"
             @click="select(t)"
             :class="{
@@ -199,8 +218,63 @@
               >Удалить
             </button>
           </div>
+          
         </dl>
         <hr class="w-full border-t border-gray-600 my-4" />
+        <div>
+          <button
+          @click="page = page - 1"
+          v-if="page>1"
+          type="button"
+          class="
+            my-4
+            inline-flex
+            items-center
+            py-2
+            px-4
+            border border-transparent
+            shadow-sm
+            text-sm
+            leading-4
+            font-medium
+            rounded-full
+            text-white
+            bg-gray-600
+            hover:bg-gray-700
+            transition-colors
+            duration-300
+            focus:outline-none
+            focus:ring-2
+            focus:ring-offset-2
+            focus:ring-gray-500
+          ">Назад</button>
+          <button
+          v-if="hasNextPage"
+          @click="page = page + 1"
+          type="button"
+          class="
+            my-4
+            inline-flex
+            items-center
+            py-2
+            px-4
+            border border-transparent
+            shadow-sm
+            text-sm
+            leading-4
+            font-medium
+            rounded-full
+            text-white
+            bg-gray-600
+            hover:bg-gray-700
+            transition-colors
+            duration-300
+            focus:outline-none
+            focus:ring-2
+            focus:ring-offset-2
+            focus:ring-gray-500
+          ">Вперед</button>
+        </div>
       </template>
       <section v-if="sel" class="relative">
         <h3 class="text-lg leading-6 font-medium text-gray-900 my-8">
@@ -257,13 +331,28 @@ export default {
       sel: null,
       graph: [],
       validateSel: Boolean,
-      foundTokensRender: ["BTC","ETH","DOGE","BCH"],
+      foundTokensRender: ["BTC", "ETH", "DOGE", "BCH"],
       pageLoading: "loading",
+      page: 1,
+      filter: "",
+      hasNextPage: true,
     };
   },
 
   created() {
-    setTimeout(() => {this.pageLoading = 'done'},1000);
+    const windowData = Object.fromEntries(new URL(window.location).searchParams.entries());
+
+    if (windowData.filter) {
+      this.filter = windowData.filter;
+    }
+
+    if(windowData.page) {
+      this.page = windowData.page;
+    }
+
+    setTimeout(() => {
+      this.pageLoading = "done";
+    }, 1000);
     const tickersData = localStorage.getItem("cryptocastle-list");
     if (tickersData) {
       this.tickers = JSON.parse(tickersData);
@@ -274,6 +363,16 @@ export default {
   },
 
   methods: {
+    filteredTickers() {
+      const start = ( this.page - 1 ) *6;
+      const end = this.page * 6;
+      const filteredTickers = this.tickers.filter(ticker => ticker.name.includes(this.filter.toUpperCase()));
+
+      this.hasNextPage = filteredTickers.length > end;
+
+      return filteredTickers.slice(start,end)
+    
+    },
     subscrideToUpdate(tickerName) {
       setInterval(async () => {
         const f = await fetch(
@@ -291,30 +390,30 @@ export default {
     },
     async quikSearching() {
       if (this.ticker !== "") {
-       this.foundTokensRender =[];
-      const tokenListUrl =
-        "https://min-api.cryptocompare.com/data/all/coinlist?summary=true";
-      const tokenListRequest = await fetch(tokenListUrl);
-      const tokenListResponse = await tokenListRequest.json();
-      const tokenListData = await tokenListResponse.Data;
-      const tokenList = [];
-          //fetch(tokenListUrl)
-          //  .then(response => response.json)
-          //  .then(data => console.log(data.Data))
+        this.foundTokensRender = [];
+        const tokenListUrl =
+          "https://min-api.cryptocompare.com/data/all/coinlist?summary=true";
+        const tokenListRequest = await fetch(tokenListUrl);
+        const tokenListResponse = await tokenListRequest.json();
+        const tokenListData = await tokenListResponse.Data;
+        const tokenList = [];
+        //fetch(tokenListUrl)
+        //  .then(response => response.json)
+        //  .then(data => console.log(data.Data))
 
-      for (const [value] of Object.entries(tokenListData)) {
-        tokenList.push(value);
-      }
-      const foundTokens = [];
-      for (let key in tokenList) {
-        let el = tokenList[key];
-        if (el.indexOf(this.ticker.toUpperCase()) != -1) {
-          foundTokens.push(el);
+        for (const [value] of Object.entries(tokenListData)) {
+          tokenList.push(value);
         }
-      }
-      this.foundTokensRender = foundTokens.slice(1, 5);
+        const foundTokens = [];
+        for (let key in tokenList) {
+          let el = tokenList[key];
+          if (el.indexOf(this.ticker.toUpperCase()) != -1) {
+            foundTokens.push(el);
+          }
+        }
+        this.foundTokensRender = foundTokens.slice(1, 5);
       } else if (this.ticker === "") {
-        this.foundTokensRender = ["BTC","ETH","DOGE","BCH"]
+        this.foundTokensRender = ["BTC", "ETH", "DOGE", "BCH"];
       }
     },
 
@@ -342,15 +441,14 @@ export default {
 
       if (this.ticker !== "" && this.validateSel !== false) {
         this.tickers.push(currentTicker);
-
+        this.filter = "";
         this.subscrideToUpdate(currentTicker.name);
-
         this.ticker = "";
       }
     },
-    quikSearchingChoice(tokenForChoice){
-      this.ticker = tokenForChoice
-      this.add()
+    quikSearchingChoice(tokenForChoice) {
+      this.ticker = tokenForChoice;
+      this.add();
     },
 
     select(ticker) {
@@ -368,9 +466,28 @@ export default {
       return this.graph.map(
         (price) => 5 + ((price - minValue) * 95) / (maxValue - minValue)
       );
+    }
+  },
+
+  watch: {
+    filter() {
+      this.page = 1;
+      window.history.pushState(
+        null,
+        document.title, 
+        `${window.location.pathname}?filter=${this.filter}&page=${this.page}`
+        );
     },
+    page() {
+      window.history.pushState(
+        null,
+        document.title, 
+        `${window.location.pathname}?filter=${this.filter}&page=${this.page}`
+        );
+    }
   },
 };
+
 </script>
 
 <style src="./assets/tailwind.css"></style>
