@@ -1,6 +1,10 @@
 <template>
   <div class="container mx-auto flex flex-col items-center bg-gray-100 p-4">
-      <!--<div
+    <div
+      v-if="this.pageLoading === 'loading'"
+      :class="{
+      '[opacity-0,invisible]' : this.pageLoading === 'done'
+      }"
       class="
         fixed
         w-100
@@ -12,6 +16,7 @@
         flex
         items-center
         justify-center
+        visible
       ">
       <svg
         class="animate-spin -ml-1 mr-3 h-12 w-12 text-white"
@@ -33,7 +38,7 @@
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
         ></path>
       </svg>
-    </div>-->
+    </div>
     <div class="container">
       <div class="w-full my-4"></div>
       <section>
@@ -46,7 +51,7 @@
               <input
                 v-model="ticker"
                 @keypress.enter="add"
-                @keydown="this.validateSel = true;"
+                @input="quikSearching"
                 type="text"
                 name="wallet"
                 id="wallet"
@@ -67,6 +72,9 @@
               class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap"
             >
               <span
+                v-for="(foundToken, idx) in foundTokensRender"
+                :key="idx"
+                @click="quikSearchingChoice(foundToken)"
                 class="
                   inline-flex
                   items-center
@@ -80,58 +88,12 @@
                   cursor-pointer
                 "
               >
-                BTC
-              </span>
-              <span
-                class="
-                  inline-flex
-                  items-center
-                  px-2
-                  m-1
-                  rounded-md
-                  text-xs
-                  font-medium
-                  bg-gray-300
-                  text-gray-800
-                  cursor-pointer
-                "
-              >
-                DOGE
-              </span>
-              <span
-                class="
-                  inline-flex
-                  items-center
-                  px-2
-                  m-1
-                  rounded-md
-                  text-xs
-                  font-medium
-                  bg-gray-300
-                  text-gray-800
-                  cursor-pointer
-                "
-              >
-                BCH
-              </span>
-              <span
-                class="
-                  inline-flex
-                  items-center
-                  px-2
-                  m-1
-                  rounded-md
-                  text-xs
-                  font-medium
-                  bg-gray-300
-                  text-gray-800
-                  cursor-pointer
-                "
-              >
-                CHD
+                {{ foundToken }}
               </span>
             </div>
-            <div v-if="this.validateSel === false" class="text-sm text-red-600">Такой тикер уже добавлен</div>
+            <div v-if="this.validateSel === false" class="text-sm text-red-600">
+              Такой тикер уже добавлен
+            </div>
           </div>
         </div>
         <button
@@ -242,7 +204,7 @@
       </template>
       <section v-if="sel" class="relative">
         <h3 class="text-lg leading-6 font-medium text-gray-900 my-8">
-          {{ sel.name }}- USD
+          {{ sel.name }} - USD
         </h3>
         <div class="flex items-end border-gray-600 border-b border-l h-64">
           <div
@@ -295,10 +257,13 @@ export default {
       sel: null,
       graph: [],
       validateSel: Boolean,
+      foundTokensRender: ["BTC","ETH","DOGE","BCH"],
+      pageLoading: "loading",
     };
   },
 
   created() {
+    setTimeout(() => {this.pageLoading = 'done'},1000);
     const tickersData = localStorage.getItem("cryptocastle-list");
     if (tickersData) {
       this.tickers = JSON.parse(tickersData);
@@ -324,19 +289,47 @@ export default {
         }
       }, 5000);
     },
+    async quikSearching() {
+      if (this.ticker !== "") {
+       this.foundTokensRender =[];
+      const tokenListUrl =
+        "https://min-api.cryptocompare.com/data/all/coinlist?summary=true";
+      const tokenListRequest = await fetch(tokenListUrl);
+      const tokenListResponse = await tokenListRequest.json();
+      const tokenListData = await tokenListResponse.Data;
+      const tokenList = [];
+          //fetch(tokenListUrl)
+          //  .then(response => response.json)
+          //  .then(data => console.log(data.Data))
+
+      for (const [value] of Object.entries(tokenListData)) {
+        tokenList.push(value);
+      }
+      const foundTokens = [];
+      for (let key in tokenList) {
+        let el = tokenList[key];
+        if (el.indexOf(this.ticker.toUpperCase()) != -1) {
+          foundTokens.push(el);
+        }
+      }
+      this.foundTokensRender = foundTokens.slice(1, 5);
+      } else if (this.ticker === "") {
+        this.foundTokensRender = ["BTC","ETH","DOGE","BCH"]
+      }
+    },
 
     tickerValidation() {
-      const tickersName = []
-        for(let i in this.tickers) {
-          tickersName.push(this.tickers[i].name.toUpperCase())
-          }
-          if (tickersName.indexOf(this.ticker.toUpperCase()) !== -1) {
-            //Тикер уже есть (Неудачная валидация)
-            this.validateSel = false
-          } else {
-            //Тикер еще не добавлен (Удачная валидация)
-             this.validateSel = true
-          }
+      const tickersName = [];
+      for (let i in this.tickers) {
+        tickersName.push(this.tickers[i].name.toUpperCase());
+      }
+      if (tickersName.indexOf(this.ticker.toUpperCase()) !== -1) {
+        //Тикер уже есть (Неудачная валидация)
+        this.validateSel = false;
+      } else {
+        //Тикер еще не добавлен (Удачная валидация)
+        this.validateSel = true;
+      }
     },
 
     add() {
@@ -344,7 +337,7 @@ export default {
         name: this.ticker,
         price: "-",
       };
-      this.tickerValidation()
+      this.tickerValidation();
       localStorage.setItem("cryptocastle-list", JSON.stringify(this.tickers));
 
       if (this.ticker !== "" && this.validateSel !== false) {
@@ -354,6 +347,10 @@ export default {
 
         this.ticker = "";
       }
+    },
+    quikSearchingChoice(tokenForChoice){
+      this.ticker = tokenForChoice
+      this.add()
     },
 
     select(ticker) {
