@@ -1,25 +1,27 @@
 <template>
-  <div class="flex flex-col items-start">
-    <label v-if="value" class="text-word-5 text-left font-medium">{{
-      label
-    }}</label>
+  <label class="p-2 text-base text-left text-gray-600 font-medium">{{
+    label
+  }}</label>
+  <div
+    class="
+      flex
+      justify-between
+      items-center
+      p-1
+      text-gray-600
+      border-2
+      rounded-xl
+    "
+  >
     <input
       :value="modelValue"
+      @keydown.enter="$emit('keydown')"
       @input="$emit('update:modelValue', $event.target.value)"
-      class="
-        w-full
-        bg-black
-        border border-word-4 border-solid
-        text-word-3
-        px-5
-        py-2.5
-        outline-none
-        rounded-2xl
-        font-medium
-      "
-      type="text"
+      class="w-full bg-white h-10 rounded-lg text-sm outline-none"
+      :type="type"
       :placeholder="placeholder"
     />
+    <BaseIcon class="text-gray-600 mr-2" name="search" />
   </div>
 </template>
 
@@ -30,7 +32,11 @@ export default defineComponent({
   props: {
     modelValue: [String, Number],
     label: String,
-    placeholder: String
+    placeholder: String,
+    type: {
+      type: String,
+      default: "text"
+    }
   }
 });
 </script>

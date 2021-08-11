@@ -1,15 +1,73 @@
 <template>
   <main class="mx-20">
-    <CardList class="my-10" />
+    <AddToken @addToken="addTokenHandler" />
+    <CardList
+      @selectToken="selectToken"
+      @removeToken="deleteTokenHandler"
+      :tokens="tokens"
+      class="my-10"
+    />
+    <!-- <PriceGraph @graphRemove="graphRemove" /> -->
   </main>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
+// import {useStore} from 'vuex'
+import { subscribeToTicker, unsubscribeFromTicker } from "@/api/prices.api";
+import { IToken } from "@/types/index";
+import AddToken from "@/components/common/AddToken.vue";
 import CardList from "@/components/common/CardList.vue";
+// import PriceGraph from "@/components/common/PriceGraph.vue";
 
 export default defineComponent({
   name: "Main",
-  components: { CardList }
+  components: { AddToken, CardList },
+  setup() {
+    let selectedToken = ref(null);
+
+    function selectToken(token) {
+      selectedToken.value = token;
+    }
+
+    let tokens = ref<Array<IToken>>([]);
+
+    function updateTicker(tokenName, price) {
+      tokens.value
+        .filter((t) => t.name === tokenName)
+        .forEach((t) => {
+          t.price = price;
+        });
+    }
+
+    function addTokenHandler(token) {
+      const currentToken: IToken = {
+        name: token.value.toUpperCase(),
+        price: 0
+      };
+
+      tokens.value = [...tokens.value, currentToken];
+      subscribeToTicker(currentToken.name, (newPrice) =>
+        updateTicker(currentToken.name, newPrice)
+      );
+    }
+
+    function deleteTokenHandler(tokenToRemove) {
+      tokens.value = tokens.value.filter((t) => t !== tokenToRemove);
+      if (selectedToken.value === tokenToRemove) {
+        selectedToken.value = null;
+      }
+      unsubscribeFromTicker(tokenToRemove.name);
+    }
+
+    return {
+      tokens,
+      updateTicker,
+      addTokenHandler,
+      deleteTokenHandler,
+      selectedToken,
+      selectToken
+    };
+  }
 });
 </script>

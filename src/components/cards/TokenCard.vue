@@ -1,44 +1,45 @@
 <template>
   <div @click="selectEvent" class="w-full p-4">
     <label
-      class="
-        flex flex-col
-        rounded-lg
-        shadow-lg
-        group
-        relative
-        cursor-pointer
-        hover:shadow-2xl
-      "
+      class="flex flex-col rounded-lg shadow-lg group relative hover:shadow-2xl"
     >
       <div
-        :class="{ 'bg-purple-700': active }"
-        class="w-full px-4 py-6 rounded-t-lg card-section-1"
+        :class="[
+          { 'bg-purple-700': active && token.price },
+          { 'bg-red-200': !token.price }
+        ]"
+        class="w-full py-6 rounded-t-lg card-section-1"
       >
         <h3
           :class="
-            active
+            active && token.price
               ? 'text-white group-hover:text-purple-100'
               : 'text-purple-700 group-hover:text-purple-500'
           "
           class="mx-auto text-base font-semibold text-center"
         >
-          {{ token.symbol }} - USD
+          {{ token.name }} - USD
         </h3>
         <p
           :class="
-            active
+            active && token.price
               ? 'text-white group-hover:text-purple-100'
               : 'text-purple-700 group-hover:text-purple-500'
           "
-          class="my-8 text-5xl font-bold text-center"
+          class="my-8 font-bold"
         >
-          ${{ Math.trunc(token.price)
-          }}<span class="text-3xl">{{ token.price }}</span>
+          <template v-if="token.price">
+            <span class="text-3xl text-left"
+              >${{ Math.trunc(token.price) }}.</span
+            ><span class="text-xl text-center">{{ frac(token.price) }}</span>
+          </template>
+          <template v-if="!token.price"
+            ><span class="text-3xl text-center">-</span></template
+          >
         </p>
         <p
           :class="
-            active
+            active && token.price
               ? 'text-white group-hover:text-purple-100'
               : 'text-purple-700 group-hover:text-purple-500'
           "
@@ -48,7 +49,7 @@
         </p>
       </div>
       <div
-        :class="active ? 'bg-purple-900' : 'bg-purple-700'"
+        :class="active && token.price ? 'bg-purple-900' : 'bg-purple-700'"
         class="
           flex flex-col
           items-center
@@ -59,8 +60,10 @@
           rounded-b-lg
         "
       >
-        <button
+        <div
+          @click.stop="removeEvent"
           class="
+            cursor-pointer
             flex
             justify-center
             items-center
@@ -78,7 +81,7 @@
         >
           <BaseIcon class="mr-1" name="trash-2" />
           Remove
-        </button>
+        </div>
       </div>
     </label>
   </div>
@@ -86,11 +89,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { frac } from "@/composables/useNumbers";
 
 export default defineComponent({
   name: "BaseCard",
   props: {
-    token: Object,
+    token: String,
     active: {
       type: Boolean,
       default: false
@@ -105,7 +109,8 @@ export default defineComponent({
     }
     return {
       selectEvent,
-      removeEvent
+      removeEvent,
+      frac
     };
   }
 });
