@@ -1,5 +1,4 @@
 <template>
-  <div>
     <BaseInput
       class="mt-10"
       @keydown="add"
@@ -10,7 +9,6 @@
     <BaseButton class="flex items-center my-10" @click="add">
       <BaseIcon class="mr-2" name="plus-circle" />Add Token
     </BaseButton>
-  </div>
 </template>
 
 <script lang="ts">
