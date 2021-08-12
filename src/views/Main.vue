@@ -7,7 +7,7 @@
       :tokens="tokens"
       class="my-10"
     />
-    <!-- <PriceGraph @graphRemove="graphRemove" /> -->
+    <PriceGraph v-if="selectedToken" :selectedToken="selectedToken" @graphRemove="graphRemove" />
   </main>
 </template>
 
@@ -18,11 +18,11 @@ import { subscribeToTicker, unsubscribeFromTicker } from "@/api/prices.api";
 import { IToken } from "@/types/index";
 import AddToken from "@/components/common/AddToken.vue";
 import CardList from "@/components/common/CardList.vue";
-// import PriceGraph from "@/components/common/PriceGraph.vue";
+import PriceGraph from "@/components/common/PriceGraph.vue";
 
 export default defineComponent({
   name: "Main",
-  components: { AddToken, CardList },
+  components: { AddToken, CardList, PriceGraph },
   setup() {
     let selectedToken = ref(null);
 
@@ -60,12 +60,17 @@ export default defineComponent({
       unsubscribeFromTicker(tokenToRemove.name);
     }
 
+    function graphRemove() {
+      selectedToken.value = null;
+    }
+
     return {
       tokens,
       updateTicker,
       addTokenHandler,
       deleteTokenHandler,
       selectedToken,
+      graphRemove,
       selectToken
     };
   }
