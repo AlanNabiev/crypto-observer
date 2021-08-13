@@ -26,7 +26,10 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watchEffect } from "vue";
-import { subscribeToTicker, unsubscribeFromTicker } from "@/api/prices.api";
+import {
+  subscribeToTicker,
+  unsubscribeFromTicker
+} from "@/api/WebSockets/prices.api";
 
 export default defineComponent({
   name: "PriceGraph",

@@ -1,22 +1,25 @@
 <template>
-  <button
-    class="
-      shadow-xl
-      border-2 border-purple-500
-      rounded-lg
-      font-bold
-      text-purple-500
-      px-4
-      py-3
-      transition
-      duration-300
-      ease-in-out
-      hover:bg-purple-500 hover:text-white
-      mr-6
-    "
-  >
-    <slot />
-  </button>
+  <div class="bg-purple-800">
+    <button
+      class="
+        transition
+        ease-in-out
+        delay-150
+        duration-700
+        transform
+        -translate-x-2.5 -translate-y-2.5
+        hover:translate-x-0 hover:translate-y-0
+        py-4
+        w-full
+        font-bold
+        text-white
+        bg-purple-500
+        hover:bg-purple-800 hover:text-white
+      "
+    >
+      <slot />
+    </button>
+  </div>
 </template>
 
 <script lang="ts">

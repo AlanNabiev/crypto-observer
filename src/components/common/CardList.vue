@@ -22,7 +22,6 @@ export default defineComponent({
   },
   setup(_, { emit }) {
     let selectedToken = ref(null);
-
     function SelectToken(token) {
       selectedToken.value = token;
       emit("selectToken", selectedToken);
