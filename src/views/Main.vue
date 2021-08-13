@@ -22,7 +22,7 @@ import {
   subscribeToTicker,
   unsubscribeFromTicker
 } from "@/api/WebSockets/prices.api";
-import { IToken } from "@/types/index";
+import { CurrentToken } from "@/types/index";
 import AddToken from "@/components/common/AddToken.vue";
 import CardList from "@/components/common/CardList.vue";
 import PriceGraph from "@/components/common/PriceGraph.vue";
@@ -37,7 +37,7 @@ export default defineComponent({
       selectedToken.value = token;
     }
 
-    let tokens = ref<Array<IToken>>([]);
+    let tokens = ref<Array<CurrentToken>>([]);
 
     function updateTicker(tokenName, price) {
       tokens.value
@@ -48,7 +48,7 @@ export default defineComponent({
     }
 
     function addTokenHandler(token) {
-      const currentToken: IToken = {
+      const currentToken: CurrentToken = {
         name: token.value.toUpperCase(),
         price: 0
       };

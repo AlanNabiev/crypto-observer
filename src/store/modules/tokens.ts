@@ -17,7 +17,7 @@ const mutations = {
 const actions = {
   async fetchTokens({ commit }) {
     const tokens = await getTokens()
-    commit('setTokens', Object.values(tokens.data.Data))
+    commit('setTokens', Object.values(tokens.data))
   }
 }
 const getters = {
