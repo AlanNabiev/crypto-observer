@@ -1,20 +1,32 @@
 <template>
   <section class="px-44">
     <BaseInput
-      class="mt-10"
+      class="mt-10 relative"
       @keydown.enter="add"
       v-model="token"
       label="Add token"
       placeholder="Enter name or symbol..."
     />
-    <BaseWarning
-      class="mr-96 mt-2"
-      v-if="!filteredTokens.length"
-      name="alert-triangle"
-      position="horizontal"
-      >Invalid token</BaseWarning
+    <transition tag="template" name="scale">
+      <BaseWarning
+        class="absolute top-28"
+        v-if="!filteredTokens.length"
+        name="alert-triangle"
+        position="horizontal"
+        >Invalid token</BaseWarning
+      >
+    </transition>
+    <transition-group
+      name="scale"
+      tag="ul"
+      class="
+        mt-2
+        absolute
+        top-15
+        grid grid-flow-col grid-cols-4 grid-rows-1
+        gap-x-4
+      "
     >
-    <ul class="mt-2 grid grid-flow-col grid-cols-4 grid-rows-1 gap-x-4">
       <li
         v-for="(tokenItem, idx) in filteredTokens"
         :key="idx"
@@ -43,8 +55,8 @@
           tokenItem.symbol.toUpperCase()
         }}</span>
       </li>
-    </ul>
-    <BaseButton class="flex items-center m-10" @click="add">
+    </transition-group>
+    <BaseButton class="flex items-center mx-80 mt-20 my-10" @click="add">
       <BaseIcon class="mr-2" name="plus-circle" />Add Token
     </BaseButton>
   </section>
@@ -97,3 +109,15 @@ export default defineComponent({
   }
 });
 </script>
+<style scoped>
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 0.5s ease;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+</style>
