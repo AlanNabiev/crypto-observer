@@ -14,6 +14,10 @@
         text-gray-600
         border-2
         rounded-xl
+        transition
+        delay-150
+        duration-700
+        ease-in-out
       "
     >
       <input
@@ -28,7 +32,15 @@
       />
       <BaseIcon
         :class="{ 'text-purple-800': focusStatus }"
-        class="text-gray-400 cursor-pointer mr-2"
+        class="
+          text-gray-400
+          cursor-pointer
+          mr-2
+          transition
+          delay-150
+          duration-700
+          ease-in-out
+        "
         name="search"
       />
     </div>
