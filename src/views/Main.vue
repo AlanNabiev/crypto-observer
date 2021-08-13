@@ -7,14 +7,21 @@
       :tokens="tokens"
       class="my-10"
     />
-    <PriceGraph v-if="selectedToken" :selectedToken="selectedToken" @graphRemove="graphRemove" />
+    <PriceGraph
+      v-if="selectedToken"
+      :selectedToken="selectedToken"
+      @graphRemove="graphRemove"
+    />
   </main>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 // import {useStore} from 'vuex'
-import { subscribeToTicker, unsubscribeFromTicker } from "@/api/prices.api";
+import {
+  subscribeToTicker,
+  unsubscribeFromTicker
+} from "@/api/WebSockets/prices.api";
 import { IToken } from "@/types/index";
 import AddToken from "@/components/common/AddToken.vue";
 import CardList from "@/components/common/CardList.vue";

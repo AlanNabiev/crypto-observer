@@ -1,4 +1,6 @@
 export interface IToken {
-    name: string
-    price: number
+    Id: number
+    ImageUrl: string
+    Symbol: string
+    FullName: string
 }
