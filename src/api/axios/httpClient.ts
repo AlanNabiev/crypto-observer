@@ -1,7 +1,13 @@
-import axios from "axios";
+  
+import axios from 'axios'
+
+const baseURL = 'https://api.coingecko.com/api/v3/coins'
 
 const httpClient = axios.create({
-  baseURL: "https://min-api.cryptocompare.com/data/all",
-});
+  baseURL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
 
-export default httpClient;
+export default httpClient
