@@ -1,5 +1,9 @@
 <template>
-  <div class="grid grid-flow-cols grid-cols-3 grid-row-2 gap-4">
+  <transition-group
+    class="grid grid-flow-cols grid-cols-3 grid-row-2 gap-4"
+    name="scale"
+    tag="div"
+  >
     <TokenCard
       @selectToken="SelectToken(token)"
       @removeToken="removeToken(token)"
@@ -8,7 +12,7 @@
       :token="token"
       :active="token === selectedToken"
     />
-  </div>
+  </transition-group>
 </template>
 
 <script lang="ts">
@@ -39,3 +43,16 @@ export default defineComponent({
   }
 });
 </script>
+
+<style scoped>
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 0.5s ease;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+</style>
